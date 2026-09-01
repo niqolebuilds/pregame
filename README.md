@@ -13,13 +13,13 @@ Picks that fail diligence after the fact (rug, collapse, or a correction) stay v
 - `index.html` — the whole site, a single self-contained page (styles inline, no build step)
 - `.nojekyll` — serve the repo as-is on GitHub Pages, no Jekyll processing
 
-## Publishing (GitHub Pages)
+## Publishing (GitHub Pages via Actions)
 
-Serve the repo root: **Settings → Pages → Source: Deploy from a branch → `main` / `/ (root)`**. Once enabled, the page is live at `https://<owner>.github.io/pregame/`.
+`.github/workflows/deploy.yml` builds and deploys the site on every push to `main` — no manual redeploy step. One-time setup: **Settings → Pages → Source: GitHub Actions** (the workflow can't turn this on itself). After that, every push here republishes automatically at `https://<owner>.github.io/pregame/`.
 
 ## Refresh cadence
 
-Refreshed automatically every 8 hours by a multi-agent web-search sweep (three parallel research agents plus an on-chain diligence pass), which commits and pushes the updated `index.html` straight to this repo.
+Every 8 hours, a multi-agent web-search sweep (three parallel research agents plus an on-chain diligence pass) updates `index.html` and pushes to `main`, which triggers the Actions deploy above — so the live site updates itself end to end with no manual step.
 
 ## Status
 
