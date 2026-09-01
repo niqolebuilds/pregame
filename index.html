@@ -1,0 +1,753 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Hourly-to-8-hourly multi-agent sweep of viral animal and AI memes cross-referenced against on-chain launch data, hunting the legit name behind the next memecoin before it pumps.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📡</text></svg>">
+<title>Pregame Tape</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap');
+
+  :root {
+    --bg: #0b0d10;
+    --surface: #15181d;
+    --surface-2: #1c2027;
+    --border: #262b31;
+    --text: #eef2f4;
+    --text-dim: #99a3ad;
+    --text-faint: #626a72;
+    --accent: #ff5a36;
+    --accent-dim: #7a2f1c;
+    --good: #34d399;
+    --good-dim: #143d30;
+    --warn: #fbbf24;
+    --warn-dim: #453310;
+    --bad: #f87171;
+    --bad-dim: #401d1d;
+    --mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+    --cond: 'IBM Plex Sans Condensed', 'IBM Plex Sans', sans-serif;
+    --sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  :root[data-theme="light"] {
+    --bg: #f6f4f0;
+    --surface: #ffffff;
+    --surface-2: #fbfaf7;
+    --border: #e1ddd3;
+    --text: #1a1d21;
+    --text-dim: #5c6470;
+    --text-faint: #8c9299;
+    --accent: #d6431f;
+    --accent-dim: #f6d9cd;
+    --good: #0f9960;
+    --good-dim: #d9f2e6;
+    --warn: #a5680a;
+    --warn-dim: #f7e6bf;
+    --bad: #c53434;
+    --bad-dim: #fadada;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0b0d10; --surface: #15181d; --surface-2: #1c2027; --border: #262b31;
+      --text: #eef2f4; --text-dim: #99a3ad; --text-faint: #626a72;
+      --accent: #ff5a36; --accent-dim: #7a2f1c;
+      --good: #34d399; --good-dim: #143d30; --warn: #fbbf24; --warn-dim: #453310;
+      --bad: #f87171; --bad-dim: #401d1d;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0b0d10; --surface: #15181d; --surface-2: #1c2027; --border: #262b31;
+    --text: #eef2f4; --text-dim: #99a3ad; --text-faint: #626a72;
+    --accent: #ff5a36; --accent-dim: #7a2f1c;
+    --good: #34d399; --good-dim: #143d30; --warn: #fbbf24; --warn-dim: #453310;
+    --bad: #f87171; --bad-dim: #401d1d;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  a { color: var(--accent); }
+  a:focus-visible, button:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+
+  h1, h2, h3 { font-family: var(--cond); text-wrap: balance; margin: 0; }
+
+  /* ---------- Tape ---------- */
+  .tape-wrap {
+    background: #000;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+  }
+  :root[data-theme="light"] .tape-wrap { background: #14171a; }
+  .tape-track {
+    display: inline-flex;
+    animation: scroll-left 74s linear infinite;
+    padding: 9px 0;
+  }
+  .tape-wrap:hover .tape-track { animation-play-state: paused; }
+  @keyframes scroll-left {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  .tape-item {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    letter-spacing: 0.02em;
+    color: #cfd6db;
+    padding: 0 22px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border-right: 1px solid #2a2e33;
+  }
+  .tape-dot { width: 6px; height: 6px; border-radius: 50%; flex: none; }
+  .tape-item b { color: #fff; font-weight: 600; }
+  .tape-item .delta-up { color: var(--good); }
+  .tape-item .delta-down { color: var(--bad); }
+  @media (prefers-reduced-motion: reduce) {
+    .tape-track { animation: none; }
+    .tape-wrap { overflow-x: auto; }
+  }
+
+  /* ---------- Header ---------- */
+  header {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 40px 24px 28px;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--good);
+    box-shadow: 0 0 0 3px var(--good-dim);
+  }
+  h1.title {
+    font-size: clamp(32px, 5vw, 46px);
+    font-weight: 700;
+    margin-top: 10px;
+    letter-spacing: -0.01em;
+  }
+  .dek {
+    color: var(--text-dim);
+    max-width: 64ch;
+    margin-top: 12px;
+    font-size: 15.5px;
+  }
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-top: 20px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--text-faint);
+  }
+  .meta-row span b { color: var(--text-dim); font-weight: 500; }
+
+  /* ---------- Market regime banner ---------- */
+  .regime {
+    max-width: 1080px; margin: 0 auto; padding: 0 24px;
+  }
+  .regime-box {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 3px;
+    padding: 16px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px 28px;
+    align-items: center;
+  }
+  .regime-label {
+    font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--text-faint); display: flex; flex-direction: column; gap: 4px; flex: none;
+  }
+  .regime-verdict {
+    font-family: var(--cond); font-weight: 700; font-size: 15px; color: var(--warn);
+    text-transform: none; letter-spacing: 0;
+  }
+  .regime-stats { display: flex; flex-wrap: wrap; gap: 20px 30px; flex: 1; }
+  .regime-stat { display: flex; flex-direction: column; gap: 2px; }
+  .regime-stat span { font-family: var(--mono); font-size: 10px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.05em; }
+  .regime-stat b { font-family: var(--mono); font-size: 13.5px; color: var(--text); font-variant-numeric: tabular-nums; font-weight: 500; }
+  .regime-note { width: 100%; font-size: 12.5px; color: var(--text-dim); border-top: 1px dashed var(--border); padding-top: 12px; margin-top: 2px; }
+
+  main { max-width: 1080px; margin: 0 auto; padding: 0 24px 60px; }
+
+  section.block { margin-top: 44px; }
+  .block-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .block-head h2 { font-size: 22px; font-weight: 700; }
+  .block-head .count {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-faint);
+  }
+  .block-note { color: var(--text-dim); font-size: 13.5px; margin-top: -10px; margin-bottom: 20px; max-width: 68ch; }
+
+  /* ---------- Cards ---------- */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 14px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 18px 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .card.is-dead { opacity: 0.72; }
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .card-name { font-family: var(--cond); font-size: 19px; font-weight: 700; line-height: 1.2; }
+  .card-tag { color: var(--text-faint); font-size: 12px; font-family: var(--mono); margin-top: 2px; }
+  .rank {
+    font-family: var(--mono); font-size: 11px; color: var(--text-faint);
+    border: 1px solid var(--border); border-radius: 2px; padding: 1px 6px; flex: none; white-space: nowrap;
+  }
+  .pills { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pill {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 2px;
+    border: 1px solid transparent;
+    white-space: nowrap;
+  }
+  .pill--prize { color: var(--accent); border-color: var(--accent-dim); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+  .pill--fresh { color: var(--text-dim); border-color: var(--border); background: var(--surface-2); }
+  .pill--muted { color: var(--text-faint); border-color: var(--border); }
+  .pill.risk-low { color: var(--good); background: var(--good-dim); }
+  .pill.risk-med { color: var(--warn); background: var(--warn-dim); }
+  .pill.risk-high { color: var(--bad); background: var(--bad-dim); }
+  .pill.state-dead { color: var(--bad); background: var(--bad-dim); border-color: var(--bad); }
+
+  .card p { margin: 0; font-size: 13.8px; color: var(--text-dim); }
+  .card p b { color: var(--text); font-weight: 600; }
+  .card .why { color: var(--text); }
+  .card .flag { color: var(--text-dim); }
+  .card .flag::before { content: "⚑ "; color: var(--bad); }
+
+  .meters { display: flex; flex-direction: column; gap: 6px; margin-top: 2px; }
+  .meter-row { display: flex; align-items: center; gap: 8px; }
+  .meter-row .label { font-family: var(--mono); font-size: 10.5px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.05em; width: 74px; flex: none; }
+  .bars { display: flex; gap: 3px; }
+  .bar { width: 12px; height: 5px; border-radius: 1px; background: var(--surface-2); border: 1px solid var(--border); }
+  .bar.filled { background: var(--accent); border-color: var(--accent); }
+  .bar.filled.narrative { background: var(--warn); border-color: var(--warn); }
+
+  .diligence {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 14px;
+    border-top: 1px dashed var(--border);
+    padding-top: 11px;
+    margin-top: 2px;
+  }
+  .diligence .full { grid-column: 1 / -1; }
+  .dl { display: flex; flex-direction: column; gap: 2px; }
+  .dl span { font-family: var(--mono); font-size: 9.5px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.05em; }
+  .dl b { font-size: 12px; color: var(--text); font-weight: 500; line-height: 1.4; }
+  .dl b.unverified { color: var(--text-faint); font-weight: 400; font-style: italic; }
+  .dl b.na { color: var(--text-faint); font-style: italic; font-weight: 400; }
+
+  .na-line { font-family: var(--mono); font-size: 11.5px; color: var(--text-faint); font-style: italic; border-top: 1px dashed var(--border); padding-top: 10px; margin-top: 2px; }
+
+  .sources { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; padding-top: 10px; border-top: 1px dashed var(--border); }
+  .sources a { font-family: var(--mono); font-size: 11px; color: var(--text-faint); text-decoration: none; }
+  .sources a:hover { color: var(--accent); text-decoration: underline; }
+
+  /* ---------- Reference table ---------- */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 3px; }
+  table { border-collapse: collapse; width: 100%; min-width: 760px; font-size: 13px; }
+  thead th {
+    text-align: left; font-family: var(--mono); font-size: 10.5px; text-transform: uppercase;
+    letter-spacing: 0.05em; color: var(--text-faint); font-weight: 500;
+    padding: 10px 14px; background: var(--surface-2); border-bottom: 1px solid var(--border);
+    position: sticky; top: 0;
+  }
+  tbody td { padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--text-dim); }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--surface); }
+  td.name { color: var(--text); font-weight: 600; font-family: var(--cond); font-size: 14.5px; }
+  td.name span { display: block; font-family: var(--mono); font-weight: 400; font-size: 11px; color: var(--text-faint); margin-top: 2px; }
+  td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--text); white-space: nowrap; }
+  .outcome { font-family: var(--mono); font-size: 11px; padding: 2px 7px; border-radius: 2px; white-space: nowrap; }
+  .outcome.peaked { color: var(--warn); background: var(--warn-dim); }
+  .outcome.dead { color: var(--bad); background: var(--bad-dim); }
+  .outcome.live { color: var(--good); background: var(--good-dim); }
+
+  /* ---------- Playbook ---------- */
+  details.playbook {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 3px; padding: 4px 0;
+  }
+  details.playbook summary {
+    cursor: pointer; list-style: none; padding: 16px 18px; display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--cond); font-weight: 700; font-size: 17px;
+  }
+  details.playbook summary::-webkit-details-marker { display: none; }
+  details.playbook summary .chev { font-family: var(--mono); color: var(--text-faint); transition: transform 0.15s ease; }
+  details.playbook[open] summary .chev { transform: rotate(90deg); }
+  .playbook-body { padding: 0 18px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 640px) { .playbook-body { grid-template-columns: 1fr; } }
+  .signal-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .signal-list li { display: flex; gap: 10px; font-size: 13.5px; color: var(--text-dim); }
+  .signal-list li::before { content: "＋"; color: var(--good); font-family: var(--mono); flex: none; }
+  .signal-list.red li::before { content: "－"; color: var(--bad); }
+  .signal-list b { color: var(--text); }
+  .playbook-col h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-faint); font-family: var(--mono); font-weight: 500; margin-bottom: 12px; }
+  .glossary { grid-column: 1 / -1; border-top: 1px solid var(--border); padding-top: 18px; margin-top: 4px; }
+  .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+  .glossary-item dt { font-family: var(--mono); font-size: 11.5px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px; }
+  .glossary-item dd { margin: 0; font-size: 12.8px; color: var(--text-dim); }
+
+  footer {
+    max-width: 1080px; margin: 0 auto; padding: 30px 24px 60px;
+    border-top: 1px solid var(--border); margin-top: 50px;
+    color: var(--text-faint); font-size: 12.5px; line-height: 1.7;
+  }
+  footer p { max-width: 72ch; margin: 0 0 10px; }
+  footer .disclaimer { color: var(--text-dim); }
+</style>
+</head>
+<body>
+
+<div class="tape-wrap" aria-label="Scrolling signal tape">
+  <div class="tape-track" id="tape-track">
+    <!-- set A -->
+    <span class="tape-item"><span class="tape-dot" style="background:var(--accent)"></span><b>ELEPHANT SHOW</b> · Samut Prakan Zoo, TH · no coin yet</span>
+    <span class="tape-item"><span class="tape-dot" style="background:var(--accent)"></span><b>OSITO</b> · Mexico WC rescue dog · no coin yet</span>
+    <span class="tape-item"><span class="tape-dot" style="background:var(--warn)"></span><b>$HeeHaw</b> · Solana · liq $203K / mc $3.7M · thin ratio</span>
+    <span class="tape-item"><span class="tape-dot" style="background:var(--bad)"></span><b>LORIA</b> · $292 24h vol · effectively dead chart</span>
+    <span class="tape-item"><span class="tape-dot" style="background:var(--good)"></span><b>$JIMOTHY</b> · liq $350K · 3,020 holders</span>
+    <span class="tape-item"><span class="tape-dot" style="background:var(--accent)"></span><b>CAPITANO CORNETTO</b> · Italian Brainrot · no coin yet</span>
+    <span class="tape-item"><span class="tape-dot" style="background:var(--bad)"></span><b>KIYOMASA</b> · <span class="delta-down">-96%</span> from peak, thin liq</span>
+    <span class="tape-item"><span class="tape-dot" style="background:var(--bad)"></span><b>AISORA</b> · corrected: ETH not SOL, 17 holders, <span class="delta-down">-99.85%</span></span>
+    <span class="tape-item"><span class="tape-dot" style="background:var(--warn)"></span>Regime: BTC ~$78K consolidating · risk-on but fragile</span>
+    <span class="tape-item"><span class="tape-dot" style="background:var(--accent)"></span><b>CAPYBARA OF INDIFFERENCE</b> · top 2026 meme format · fragmented namespace</span>
+    <!-- set B (duplicate for seamless loop) -->
+    <span class="tape-item"><span class="tape-dot" style="background:var(--accent)"></span><b>ELEPHANT SHOW</b> · Samut Prakan Zoo, TH · no coin yet</span>
+    <span class="tape-item"><span class="tape-dot" style="background:var(--accent)"></span><b>OSITO</b> · Mexico WC rescue dog · no coin yet</span>
+    <span class="tape-item"><span class="tape-dot" style="background:var(--warn)"></span><b>$HeeHaw</b> · Solana · liq $203K / mc $3.7M · thin ratio</span>
+    <span class="tape-item"><span class="tape-dot" style="background:var(--bad)"></span><b>LORIA</b> · $292 24h vol · effectively dead chart</span>
+    <span class="tape-item"><span class="tape-dot" style="background:var(--good)"></span><b>$JIMOTHY</b> · liq $350K · 3,020 holders</span>
+    <span class="tape-item"><span class="tape-dot" style="background:var(--accent)"></span><b>CAPITANO CORNETTO</b> · Italian Brainrot · no coin yet</span>
+    <span class="tape-item"><span class="tape-dot" style="background:var(--bad)"></span><b>KIYOMASA</b> · <span class="delta-down">-96%</span> from peak, thin liq</span>
+    <span class="tape-item"><span class="tape-dot" style="background:var(--bad)"></span><b>AISORA</b> · corrected: ETH not SOL, 17 holders, <span class="delta-down">-99.85%</span></span>
+    <span class="tape-item"><span class="tape-dot" style="background:var(--warn)"></span>Regime: BTC ~$78K consolidating · risk-on but fragile</span>
+    <span class="tape-item"><span class="tape-dot" style="background:var(--accent)"></span><b>CAPYBARA OF INDIFFERENCE</b> · top 2026 meme format · fragmented namespace</span>
+  </div>
+</div>
+
+<header>
+  <div class="eyebrow">Swarm live · rev. 2, on-chain diligence pass added</div>
+  <h1 class="title">Pregame Tape</h1>
+  <p class="dek">A standing sweep of X/social virality — viral animals and AI personas — cross-referenced against on-chain launch data, hunting for the legit name behind a meme before a coin gets built on it. Not financial advice; most memecoins go to zero.</p>
+  <div class="meta-row">
+    <span>Updated <b id="updated-at">Sep 1, 2026 · diligence pass</b></span>
+    <span>Cadence <b>every 8 hours</b></span>
+    <span>Sources <b>X-adjacent web search · pump.fun · DexScreener · GeckoTerminal · RugCheck-style coverage · crypto news wires</b></span>
+    <span>Run method <b>swarm + diligence pass</b></span>
+  </div>
+</header>
+
+<div class="regime">
+  <div class="regime-box">
+    <div class="regime-label">Market regime<span class="regime-verdict">Cautious risk-on, fragile</span></div>
+    <div class="regime-stats">
+      <div class="regime-stat"><span>BTC</span><b>~$77–79K, consolidating</b></div>
+      <div class="regime-stat"><span>Total crypto mc</span><b>~$2.6T (vs $4.3T ATH)</b></div>
+      <div class="regime-stat"><span>Fear &amp; greed</span><b>Neutral → Greed (mixed)</b></div>
+      <div class="regime-stat"><span>Pump.fun launches/day</span><b>~20K (down from 70K peak)</b></div>
+    </div>
+    <p class="regime-note">August's ETF inflows and BTC's rally point to real risk appetite, but a hawkish late-Aug Fed signal and cooling Solana launch volume mean new memecoins may find it harder to catch a sustained bid until the Sept FOMC clears. Treat every conviction score below as riding on top of this backdrop, not independent of it.</p>
+  </div>
+</div>
+
+<main>
+
+  <section class="block">
+    <div class="block-head">
+      <h2>Pre-viral watchlist</h2>
+      <span class="count">no coin claims the name yet</span>
+    </div>
+    <p class="block-note">The actual hunt: things already spreading on social platforms that nobody has tokenized. On-chain diligence (bundling, dev wallet, liquidity, holders, chart) doesn't apply yet — the only variable that exists this early is narrative strength.</p>
+
+    <div class="grid">
+
+      <div class="card">
+        <div class="card-top">
+          <div><div class="card-name">Elephant Show</div><div class="card-tag">Samut Prakan Crocodile Farm &amp; Zoo, Thailand</div></div>
+          <span class="rank">#1</span>
+        </div>
+        <div class="pills"><span class="pill pill--prize">No coin yet</span><span class="pill risk-med">Timing risk</span></div>
+        <p class="why"><b>Signal:</b> TikTok clip (@atomisatom4, Aug 28) of zoo staff running a full elephant show for one lone spectator in empty stands. 1.2M+ views in 3 days — still fresh, not stale.</p>
+        <p>Fits the Moo Deng pattern exactly: Thai zoo, wholesome/emotional hook, institutional account already exists to amplify it further.</p>
+        <p class="flag">Whoever launches first with a clean fair-launch and the right name wins the namespace — low-effort anon tickers will try to grab it fast.</p>
+        <div class="meters">
+          <div class="meter-row"><span class="label">Narrative</span><div class="bars"><div class="bar filled narrative"></div><div class="bar filled narrative"></div><div class="bar filled narrative"></div><div class="bar filled narrative"></div><div class="bar"></div></div></div>
+          <div class="meter-row"><span class="label">Conviction</span><div class="bars"><div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar"></div></div></div>
+        </div>
+        <div class="na-line">On-chain diligence — n/a, no coin yet</div>
+        <div class="sources"><a href="https://huahin.localplus.city/2026/09/01/zoo-elephant-show-goes-viral-after-captivating-sole-spectator/" target="_blank" rel="noopener">localplus.city</a></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <div><div class="card-name">Osito</div><div class="card-tag">Mexico World Cup rescue dog</div></div>
+          <span class="rank">#2</span>
+        </div>
+        <div class="pills"><span class="pill pill--prize">No coin yet</span><span class="pill risk-med">Cooling</span></div>
+        <p class="why"><b>Signal:</b> 8-year-old rescue poodle-mix, owner Jorge Rangel rides him on a cargo bike in a Mexico jersey and sunglasses to World Cup 2026 matches. Broadcast pickup, viral worldwide.</p>
+        <p>Strong ready-made branding (jersey, bike, shades) and cross-border reach — but the World Cup peak was ~2.5 months ago, so the moment may already be behind it.</p>
+        <div class="meters">
+          <div class="meter-row"><span class="label">Narrative</span><div class="bars"><div class="bar filled narrative"></div><div class="bar filled narrative"></div><div class="bar filled narrative"></div><div class="bar"></div><div class="bar"></div></div></div>
+          <div class="meter-row"><span class="label">Conviction</span><div class="bars"><div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar"></div><div class="bar"></div></div></div>
+        </div>
+        <div class="na-line">On-chain diligence — n/a, no coin yet</div>
+        <div class="sources"><a href="https://www.nbcnews.com/world/mexico/world-cup-mexico-rescue-dog-osito-merlin-duck-rcna350835" target="_blank" rel="noopener">nbcnews.com</a></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <div><div class="card-name">Capitano Cornetto</div><div class="card-tag">Italian Brainrot universe</div></div>
+          <span class="rank">#3</span>
+        </div>
+        <div class="pills"><span class="pill pill--prize">No coin yet</span><span class="pill risk-med">Saturated category</span></div>
+        <p class="why"><b>Signal:</b> a croissant in a captain's hat, called out in 2026 industry rankings as a rising character likely to crack the format's top 10 by year-end.</p>
+        <p>Italian Brainrot has a proven conversion rate to coins (Boneca Ambalabu, Tung Tung Sahur, Glorbo Fruttodrillo all got tokenized) — but the category is now crowded with hundreds of near-identical entries, most sitting at four-figure market caps.</p>
+        <div class="meters">
+          <div class="meter-row"><span class="label">Narrative</span><div class="bars"><div class="bar filled narrative"></div><div class="bar filled narrative"></div><div class="bar filled narrative"></div><div class="bar"></div><div class="bar"></div></div></div>
+          <div class="meter-row"><span class="label">Conviction</span><div class="bars"><div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar"></div><div class="bar"></div></div></div>
+        </div>
+        <div class="na-line">On-chain diligence — n/a, no coin yet</div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <div><div class="card-name">Špijuniro Golubiro / Espressona Signora</div><div class="card-tag">Italian Brainrot — newest canon entries</div></div>
+          <span class="rank">#4</span>
+        </div>
+        <div class="pills"><span class="pill pill--prize">No coin yet</span><span class="pill risk-med">Low salience</span></div>
+        <p class="why"><b>Signal:</b> a pigeon-spy character and a "caffeinated chaos" faction member, already with dedicated wiki/fandom pages in the still-expanding Brainrot canon.</p>
+        <p>Same mechanism as Cornetto, but being the newest of 100+ characters means less individual attention until one clip breaks out specifically.</p>
+        <div class="meters">
+          <div class="meter-row"><span class="label">Narrative</span><div class="bars"><div class="bar filled narrative"></div><div class="bar filled narrative"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div></div>
+          <div class="meter-row"><span class="label">Conviction</span><div class="bars"><div class="bar filled"></div><div class="bar filled"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div></div>
+        </div>
+        <div class="na-line">On-chain diligence — n/a, no coin yet</div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <div><div class="card-name">ChatTJB</div><div class="card-tag">San Francisco billboard art project (Tucker Bryant)</div></div>
+          <span class="rank">#5</span>
+        </div>
+        <div class="pills"><span class="pill pill--prize">No coin yet</span><span class="pill risk-high">Real person</span></div>
+        <p class="why"><b>Signal:</b> a billboard where a human secretly answers "AI chatbot" queries — 100,000+ prompts, 10,000+ volunteer operators, covered by Fortune, PC Gamer, Futurism (Aug 2026).</p>
+        <p>Strong ironic "AI, but it's not" hook that memecoin culture tends to love — the goatse-to-$GOAT playbook runs on exactly this kind of absurdist joke.</p>
+        <p class="flag">Tied to a real, named individual and his art project — a coin using his likeness carries the usual publicity-rights/legal exposure.</p>
+        <div class="meters">
+          <div class="meter-row"><span class="label">Narrative</span><div class="bars"><div class="bar filled narrative"></div><div class="bar filled narrative"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div></div>
+          <div class="meter-row"><span class="label">Conviction</span><div class="bars"><div class="bar filled"></div><div class="bar filled"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div></div>
+        </div>
+        <div class="na-line">On-chain diligence — n/a, no coin yet</div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <div><div class="card-name">Capybara of Indifference</div><div class="card-tag">audio-meme format, capybara + dramatic score</div></div>
+          <span class="rank">#6</span>
+        </div>
+        <div class="pills"><span class="pill pill--prize">Fragmented</span><span class="pill risk-med">No single owner</span></div>
+        <p class="why"><b>Signal:</b> named the single biggest meme trend of 2026 in multiple "best memes of the year" roundups — an evergreen, remixable format, not one clip.</p>
+        <p>Unusually durable as a genre rather than a moment. But that also means no one coin can cleanly claim it — a generic "Capybara Coin" (CAPY) and an unrelated "$CAPYBARA" (tied to a different viral clip) are already competing for the name.</p>
+        <div class="meters">
+          <div class="meter-row"><span class="label">Narrative</span><div class="bars"><div class="bar filled narrative"></div><div class="bar filled narrative"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div></div>
+          <div class="meter-row"><span class="label">Conviction</span><div class="bars"><div class="bar filled"></div><div class="bar filled"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div></div>
+        </div>
+        <div class="na-line">On-chain diligence — n/a, fragmented across multiple existing coins</div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head">
+      <h2>Fresh launches</h2>
+      <span class="count">already has a coin — diligence pass applied</span>
+    </div>
+    <p class="block-note">Bundling %, dev-wallet, and holder-count data were pulled from search snippets and secondary coverage — RugCheck, DexScreener, and Solscan block direct fetches from here, so treat figures as point-in-time and unverified where marked. Two of the five picks from the last pass failed diligence outright; they're kept visible below, greyed out, so you can see the process working rather than silently disappearing.</p>
+
+    <div class="grid">
+
+      <div class="card">
+        <div class="card-top">
+          <div><div class="card-name">Justice for HeeHaw</div><div class="card-tag">$HeeHaw — Solana, launched Aug 30</div></div>
+          <span class="rank">~$3.7–4M mc</span>
+        </div>
+        <div class="pills"><span class="pill pill--fresh">24-48h old</span><span class="pill risk-high">Tragedy-riding</span></div>
+        <p class="why"><b>Why it's here:</b> a real donkey reportedly shot during a police search operation; the outrage narrative moved fast onto pump.fun. Mint, freeze, and update authorities are reported revoked — a real rug-safety signal.</p>
+        <p class="flag">Explicit disclaimer that the actual awareness campaign/family has no connection to or benefit from the token — opportunistic launch on someone else's tragedy, not a fan tribute.</p>
+        <div class="meters">
+          <div class="meter-row"><span class="label">Narrative</span><div class="bars"><div class="bar filled narrative"></div><div class="bar filled narrative"></div><div class="bar filled narrative"></div><div class="bar"></div><div class="bar"></div></div></div>
+          <div class="meter-row"><span class="label">Conviction</span><div class="bars"><div class="bar filled"></div><div class="bar filled"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div></div>
+        </div>
+        <div class="diligence">
+          <div class="dl"><span>Bundling %</span><b class="unverified">Not found / unverified</b></div>
+          <div class="dl"><span>Dev wallet</span><b>Authorities revoked; deployer identity anonymous</b></div>
+          <div class="dl"><span>Liquidity/TVL</span><b>~$203K — thin vs. ~$3.7–4M mc (~5% ratio)</b></div>
+          <div class="dl"><span>Holders</span><b>~10,965 unique traders in 20h (proxy, not exact holders)</b></div>
+          <div class="dl full"><span>Chart structure</span><b>Fresh viral spike, +13% 24h on heavy volume ($6.7–10M/day) — still in early discovery, no retrace confirmed yet</b></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <div><div class="card-name">Jimothy the Raccoon</div><div class="card-tag">$JIMOTHY — Solana</div></div>
+          <span class="rank">~$14.3M mc</span>
+        </div>
+        <div class="pills"><span class="pill pill--fresh">Past first pump</span><span class="pill risk-med">Anon dev</span></div>
+        <p class="why"><b>Why it's here:</b> real raccoon filmed near a Seattle Goodwill went viral in July; anon devs launched within hours. Got two more legs (+331% on an Elon Musk repost, another on a White House social mention) before cooling.</p>
+        <p>No presale, no team allocation, full supply circulating from launch — a clean fair-launch structure. Still the largest, most liquid pick on this tape.</p>
+        <div class="meters">
+          <div class="meter-row"><span class="label">Narrative</span><div class="bars"><div class="bar filled narrative"></div><div class="bar filled narrative"></div><div class="bar filled narrative"></div><div class="bar"></div><div class="bar"></div></div></div>
+          <div class="meter-row"><span class="label">Conviction</span><div class="bars"><div class="bar filled"></div><div class="bar filled"></div><div class="bar filled"></div><div class="bar"></div><div class="bar"></div></div></div>
+        </div>
+        <div class="diligence">
+          <div class="dl"><span>Bundling %</span><b class="unverified">No confirmed figure; reported 0% team allocation</b></div>
+          <div class="dl"><span>Dev wallet</span><b>Anonymous, no confirmed sell-out, no prior launch history found</b></div>
+          <div class="dl"><span>Liquidity/TVL</span><b>~$350K in PumpSwap pool (~2.5% of mc)</b></div>
+          <div class="dl"><span>Holders</span><b>~3,020</b></div>
+          <div class="dl full"><span>Chart structure</span><b>Parabolic spike (52x, then +331%), peaked ~$22M, now ~$14.3M — well off ATH, cooled but not collapsed</b></div>
+        </div>
+      </div>
+
+      <div class="card is-dead">
+        <div class="card-top">
+          <div><div class="card-name">LORIA</div><div class="card-tag">"New Truth Terminal" tribute — Solana</div></div>
+          <span class="rank">~$9.3K mc</span>
+        </div>
+        <div class="pills"><span class="pill state-dead">Failed diligence</span><span class="pill risk-high">Untraded</span></div>
+        <p class="why"><b>Why it was here:</b> direct lineage from the same creator/persona ecosystem that produced $GOAT. Good narrative, but the diligence pass found the chart is essentially dead.</p>
+        <p class="flag">100% of the ~$14.7K liquidity pool is reported locked, but 24h volume is only ~$292 — this isn't trading, it's parked. A prior search-synthesized "dev wallet" address turned out to be an Ethereum-format address on a Solana token — almost certainly bad data, so dev-wallet identity is genuinely unknown.</p>
+        <div class="meters">
+          <div class="meter-row"><span class="label">Narrative</span><div class="bars"><div class="bar filled narrative"></div><div class="bar filled narrative"></div><div class="bar filled narrative"></div><div class="bar"></div><div class="bar"></div></div></div>
+          <div class="meter-row"><span class="label">Conviction</span><div class="bars"><div class="bar filled"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div></div>
+        </div>
+        <div class="diligence">
+          <div class="dl"><span>Bundling %</span><b class="unverified">Not found / unverified</b></div>
+          <div class="dl"><span>Dev wallet</span><b class="unverified">Unreliable/contradictory data — treat as unknown</b></div>
+          <div class="dl"><span>Liquidity/TVL</span><b>~$14.7K, reported 100% locked</b></div>
+          <div class="dl"><span>Holders</span><b class="unverified">Not found / unverified</b></div>
+          <div class="dl full"><span>Chart structure</span><b>Flat/dead — ~$292 24h volume, effectively untraded since launch</b></div>
+        </div>
+      </div>
+
+      <div class="card is-dead">
+        <div class="card-top">
+          <div><div class="card-name">Kiyomasa the Gorilla</div><div class="card-tag">Higashiyama Zoo, Nagoya — twice-abandoned CTO</div></div>
+          <span class="rank">~$27K mc</span>
+        </div>
+        <div class="pills"><span class="pill state-dead">Failed diligence</span><span class="pill risk-high">Collapsed</span></div>
+        <p class="why"><b>Why it was here:</b> a gorilla's viral "Thinker" pose video, distinctive and memeable — surged ~127,000% in under 24 hours to a $706K peak.</p>
+        <p class="flag">The original dev soft-rugged (abandoned); a first community-takeover also disappeared; a second community group runs it now with no named steward. Market cap has since fallen to ~$27K — a 96%+ drawdown from peak — on liquidity multiple sources describe as "highly limited" throughout.</p>
+        <div class="meters">
+          <div class="meter-row"><span class="label">Narrative</span><div class="bars"><div class="bar filled narrative"></div><div class="bar filled narrative"></div><div class="bar filled narrative"></div><div class="bar"></div><div class="bar"></div></div></div>
+          <div class="meter-row"><span class="label">Conviction</span><div class="bars"><div class="bar filled"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div></div>
+        </div>
+        <div class="diligence">
+          <div class="dl"><span>Bundling %</span><b class="unverified">Not found / unverified</b></div>
+          <div class="dl"><span>Dev wallet</span><b>Original dev + first CTO both abandoned it; current stewards undoxxed</b></div>
+          <div class="dl"><span>Liquidity/TVL</span><b class="unverified">No reliable current figure; described as "highly limited" throughout</b></div>
+          <div class="dl"><span>Holders</span><b class="unverified">Not found / unverified</b></div>
+          <div class="dl full"><span>Chart structure</span><b>Extreme spike-and-collapse — +127,000% in &lt;24h, then -96%+ from peak</b></div>
+        </div>
+      </div>
+
+      <div class="card is-dead">
+        <div class="card-top">
+          <div><div class="card-name">AISora <span style="color:var(--bad); font-weight:400;">(correction)</span></div><div class="card-tag">Sora 2 "GPU theft" Altman deepfake wave</div></div>
+          <span class="rank">-99.85%</span>
+        </div>
+        <div class="pills"><span class="pill state-dead">Failed diligence</span><span class="pill risk-high">Chain mismatch</span></div>
+        <p class="why"><b>Correction from last pass:</b> the diligence sweep couldn't confirm a Solana "AISora" token at all — the coin that pumped +71,110% on this narrative is actually on <b>Ethereum</b>, not Solana as previously listed here.</p>
+        <p class="flag">Only ~17 holders, low liquidity, price now down ~99.85% from its pump — a textbook pump-and-abandon. A separate, unrelated Solana coin ("Scam Altman," $SCAM, a different Elon-vs-Altman narrative) hit ~$10M market cap in 8 hours in April 2026 then fell ~88% in 24h — also already played out. Neither is a live opportunity; kept here so the correction is visible rather than quietly dropped.</p>
+        <div class="meters">
+          <div class="meter-row"><span class="label">Narrative</span><div class="bars"><div class="bar filled narrative"></div><div class="bar filled narrative"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div></div>
+          <div class="meter-row"><span class="label">Conviction</span><div class="bars"><div class="bar filled"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div></div>
+        </div>
+        <div class="diligence">
+          <div class="dl"><span>Bundling %</span><b class="unverified">Not found / unverified</b></div>
+          <div class="dl"><span>Dev wallet</span><b class="unverified">Not found / unverified</b></div>
+          <div class="dl"><span>Liquidity/TVL</span><b>Low (unspecified) per Etherscan-linked coverage</b></div>
+          <div class="dl"><span>Holders</span><b>~17 (Ethereum contract)</b></div>
+          <div class="dl full"><span>Chart structure</span><b>Pumped +71,110% then collapsed -99.85% — classic pump-and-abandon</b></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head">
+      <h2>Reference plays</h2>
+      <span class="count">how the last cycle actually went</span>
+    </div>
+    <p class="block-note">The calibration set — cashcat, ansem, and the rest of the pattern this whole tape is built to catch earlier next time.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Name</th><th>Origin</th><th>Time to launch</th><th>Peak</th><th>Now</th><th>Outcome</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="name">Cash Cat<span>CASHCAT · Robinhood Chain</span></td>
+            <td>Robinhood's old internal codename resurfaced at mainnet launch</td>
+            <td class="num">~1 week after</td>
+            <td class="num">~$200M</td>
+            <td class="num">high risk, anon team</td>
+            <td><span class="outcome peaked">Peaked</span></td>
+          </tr>
+          <tr>
+            <td class="name">The Black Bull<span>$ANSEM · Solana</span></td>
+            <td>Tribute coin airdropped straight to KOL Ansem's wallet</td>
+            <td class="num">same day</td>
+            <td class="num">~$147M</td>
+            <td class="num">~$120M</td>
+            <td><span class="outcome live">Still live</span></td>
+          </tr>
+          <tr>
+            <td class="name">Goatseus Maximus<span>$GOAT · Solana</span></td>
+            <td>AI agent Truth Terminal fixated on the "Goatse" meme</td>
+            <td class="num">~1 hour after</td>
+            <td class="num">~$800M</td>
+            <td class="num">well off peak</td>
+            <td><span class="outcome peaked">Peaked</span></td>
+          </tr>
+          <tr>
+            <td class="name">Fartcoin<span>Solana</span></td>
+            <td>Same Truth Terminal / "Infinite Backrooms" AI lineage as $GOAT</td>
+            <td class="num">~1 week after</td>
+            <td class="num">~$2B</td>
+            <td class="num">well off peak</td>
+            <td><span class="outcome peaked">Peaked</span></td>
+          </tr>
+          <tr>
+            <td class="name">Peanut the Squirrel<span>$PNUT · Solana</span></td>
+            <td>Pet squirrel euthanized by NY wildlife officials; Musk amplified</td>
+            <td class="num">~1 week after</td>
+            <td class="num">$2B+</td>
+            <td class="num">well off peak</td>
+            <td><span class="outcome peaked">Peaked</span></td>
+          </tr>
+          <tr>
+            <td class="name">Moo Deng<span>$MOODENG · Solana</span></td>
+            <td>Viral pygmy hippo at a Thai zoo</td>
+            <td class="num">concurrent</td>
+            <td class="num">~$680M</td>
+            <td class="num">well off peak</td>
+            <td><span class="outcome peaked">Peaked</span></td>
+          </tr>
+          <tr>
+            <td class="name">Punch<span>$PUNCH · Solana</span></td>
+            <td>Baby macaque's bond with an IKEA plush; Tate brothers amplified</td>
+            <td class="num">days after</td>
+            <td class="num">~$30M</td>
+            <td class="num"><span style="color:var(--bad)">-70%</span> for early traders</td>
+            <td><span class="outcome peaked">Peaked</span></td>
+          </tr>
+          <tr>
+            <td class="name">Nihilist Penguin<span>$PENGUIN · Solana</span></td>
+            <td>2007 Herzog documentary clip resurfaced via a viral AI-generated post</td>
+            <td class="num">days after</td>
+            <td class="num">~$130M</td>
+            <td class="num">~$25K</td>
+            <td><span class="outcome dead">Dead</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="block">
+    <details class="playbook" open>
+      <summary>Playbook — what separates a real breakout from a rug <span class="chev">›</span></summary>
+      <div class="playbook-body">
+        <div class="playbook-col">
+          <h3>Signals it's about to pop</h3>
+          <ul class="signal-list">
+            <li><b>Existing clout is already adjacent.</b> A known account, KOL wallet, or real public figure with a following sits next to the meme before any coin exists.</li>
+            <li><b>Outrage or emotional charge</b> attaches to it, especially amplified by a mega-account — moral stakes recruit far more retail attention than a joke alone.</li>
+            <li><b>Fair-launch, visible dev exit.</b> Full supply public at launch, no presale, dev sells out fast for a token amount — reads as nobody left to dump on you.</li>
+            <li><b>Coin shows up within hours to days of peak virality</b>, not weeks. Late arrivals are almost always stale copycats.</li>
+            <li><b>A known wallet buys in publicly, on-chain, within hours</b> — the market trusts a traceable whale more than any tweet.</li>
+            <li><b>Catalysts stack</b> — the meme, then a trader's rags-to-riches story, then CEX listing rumors. One spike alone tends to fade.</li>
+          </ul>
+        </div>
+        <div class="playbook-col">
+          <h3>Signals it's a rug or copycat</h3>
+          <ul class="signal-list red">
+            <li><b>High bundling %.</b> A large share of supply distributed to coordinated/sniper wallets at launch, rather than organic buyers.</li>
+            <li><b>Concentrated or unknown dev wallet</b> — anon deployer with no track record, still holding a large bag, or linked to a string of other quick launches.</li>
+            <li><b>Liquidity thin relative to market cap</b> — a market cap built on a shallow pool moves (and can be pulled) on small size.</li>
+            <li><b>Chart shows spike-and-collapse</b> rather than a base-building structure — most of the move already happened before you could act on it.</li>
+            <li><b>No path to further catalysts</b> — no listing rumor, no known wallet buying in, no second narrative wave, holder count stagnant or falling.</li>
+          </ul>
+        </div>
+        <div class="glossary">
+          <h3 style="margin-bottom:14px;">What each diligence field means</h3>
+          <dl class="glossary-grid">
+            <div class="glossary-item"><dt>Bundling %</dt><dd>Share of total supply distributed to a cluster of coordinated wallets at launch (snipers/insiders) rather than organic buyers. High bundling = coordinated dump risk.</dd></div>
+            <div class="glossary-item"><dt>Dev wallet</dt><dd>Who deployed it and what they've done since — sold out immediately (bullish, "clean"), still holding a large bag (dump risk), or abandoned it entirely (soft rug / CTO candidate).</dd></div>
+            <div class="glossary-item"><dt>Narrative strength</dt><dd>How compelling and shareable the underlying story is on its own — independent of whether the token behind it is well-built. A strong narrative on a bad token is still a bad token.</dd></div>
+            <div class="glossary-item"><dt>Liquidity / TVL</dt><dd>Real dollars sitting in the trading pool. A market cap resting on thin liquidity is fragile — it can be pumped or drained with comparatively little capital.</dd></div>
+            <div class="glossary-item"><dt>Market conditions</dt><dd>The macro backdrop (BTC trend, overall risk appetite, Solana meme-sector momentum) that decides whether any given launch can catch a sustained bid at all, regardless of how good the meme is.</dd></div>
+            <div class="glossary-item"><dt>Holder count</dt><dd>Breadth of ownership. A handful of wallets holding most of supply is a concentration/dump risk even if the headline market cap looks large.</dd></div>
+            <div class="glossary-item"><dt>Chart structure</dt><dd>Where in its lifecycle the price action sits — early discovery, parabolic spike, base-building, or already collapsed. Determines whether there's realistically anything left to catch.</dd></div>
+          </dl>
+        </div>
+      </div>
+    </details>
+  </section>
+
+</main>
+
+<footer>
+  <p><b>Method:</b> every 8 hours this fans out parallel research agents — one scanning viral animal content, one scanning viral AI content, one scanning crypto-KOL/launch-tracker chatter from the last 24–72h — then a diligence pass tries to pull bundling %, dev-wallet history, liquidity/TVL, holder count, and chart structure for anything that already has a coin, plus a market-conditions read. It searches the open web (news aggregators, crypto trackers, wiki/fandom pages); it does not have a live X/Twitter firehose or authenticated access to on-chain tools like RugCheck/DexScreener/Solscan (those block direct fetches from here), so figures marked "unverified" are genuine gaps, not rounding — verify anything you'd act on directly against the contract before trading.</p>
+  <p class="disclaimer">Not financial advice. Memecoins are extremely high-risk, illiquid, and often engineered to transfer money from latecomers to early wallets and anonymous deployers — the large majority go to zero or get rugged, as several entries on this exact page already have. Names surfaced here are reported patterns and public web signals, not endorsements, and every figure can be stale by the time you read this. Do your own diligence on any contract before risking money.</p>
+</footer>
+
+</body>
+</html>
