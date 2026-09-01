@@ -338,6 +338,27 @@
   }
   footer p { max-width: 72ch; margin: 0 0 10px; }
   footer .disclaimer { color: var(--text-dim); }
+
+  /* ---------- Lookup bar ---------- */
+  .lookup-wrap { max-width: 1080px; margin: 20px auto 0; padding: 0 24px; }
+  .lookup-box { border: 1px solid var(--border); background: var(--surface); border-radius: 3px; padding: 16px 20px; }
+  .lookup-label { display: block; font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-faint); margin-bottom: 10px; }
+  .lookup-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .lookup-prefix { font-family: var(--mono); font-size: 16px; color: var(--accent); font-weight: 600; }
+  .lookup-input {
+    flex: 1; min-width: 180px; background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 2px; padding: 9px 12px; font-family: var(--mono); font-size: 14px; color: var(--text);
+  }
+  .lookup-input::placeholder { color: var(--text-faint); }
+  .lookup-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .lookup-request {
+    font-family: var(--mono); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.04em;
+    color: var(--accent); border: 1px solid var(--accent-dim); padding: 9px 14px; border-radius: 2px;
+    text-decoration: none; white-space: nowrap; background: color-mix(in srgb, var(--accent) 10%, transparent);
+  }
+  .lookup-request:hover { background: color-mix(in srgb, var(--accent) 22%, transparent); }
+  .lookup-status { margin: 10px 0 0; font-size: 12px; color: var(--text-dim); }
+  .empty-card { align-items: center; justify-content: center; text-align: center; color: var(--text-faint); font-family: var(--mono); font-size: 12.5px; padding: 30px 18px; }
 </style>
 </head>
 <body>
@@ -394,6 +415,18 @@
   </div>
 </div>
 
+<div class="lookup-wrap">
+  <div class="lookup-box">
+    <label for="lookup-input" class="lookup-label">Look up a coin</label>
+    <div class="lookup-row">
+      <span class="lookup-prefix" aria-hidden="true">$</span>
+      <input id="lookup-input" class="lookup-input" type="text" placeholder="TICKER or name — e.g. JIMOTHY" autocomplete="off" spellcheck="false" inputmode="search">
+      <a id="lookup-request" class="lookup-request" href="https://github.com/niqolebuilds/pregame/issues/new?labels=analysis-request&amp;title=Analyze%20%24" target="_blank" rel="noopener">Request analysis →</a>
+    </div>
+    <p id="lookup-status" class="lookup-status">Filters the tape below as you type. No match? "Request analysis" opens a GitHub issue — it gets a full diligence pass and gets added here on the next refresh cycle (every 8h).</p>
+  </div>
+</div>
+
 <main>
 
   <section class="block">
@@ -405,7 +438,7 @@
 
     <div class="grid">
 
-      <div class="card">
+      <div class="card" data-search="elephant show samut prakan zoo thailand">
         <div class="card-top">
           <div><div class="card-name">Elephant Show</div><div class="card-tag">Samut Prakan Crocodile Farm &amp; Zoo, Thailand</div></div>
           <span class="rank">#1</span>
@@ -422,7 +455,7 @@
         <div class="sources"><a href="https://huahin.localplus.city/2026/09/01/zoo-elephant-show-goes-viral-after-captivating-sole-spectator/" target="_blank" rel="noopener">localplus.city</a></div>
       </div>
 
-      <div class="card">
+      <div class="card" data-search="osito mexico world cup rescue dog">
         <div class="card-top">
           <div><div class="card-name">Osito</div><div class="card-tag">Mexico World Cup rescue dog</div></div>
           <span class="rank">#2</span>
@@ -438,7 +471,7 @@
         <div class="sources"><a href="https://www.nbcnews.com/world/mexico/world-cup-mexico-rescue-dog-osito-merlin-duck-rcna350835" target="_blank" rel="noopener">nbcnews.com</a></div>
       </div>
 
-      <div class="card">
+      <div class="card" data-search="capitano cornetto italian brainrot">
         <div class="card-top">
           <div><div class="card-name">Capitano Cornetto</div><div class="card-tag">Italian Brainrot universe</div></div>
           <span class="rank">#3</span>
@@ -453,7 +486,7 @@
         <div class="na-line">On-chain diligence — n/a, no coin yet</div>
       </div>
 
-      <div class="card">
+      <div class="card" data-search="špijuniro golubiro espressona signora italian brainrot pigeon">
         <div class="card-top">
           <div><div class="card-name">Špijuniro Golubiro / Espressona Signora</div><div class="card-tag">Italian Brainrot — newest canon entries</div></div>
           <span class="rank">#4</span>
@@ -468,7 +501,7 @@
         <div class="na-line">On-chain diligence — n/a, no coin yet</div>
       </div>
 
-      <div class="card">
+      <div class="card" data-search="chattjb tucker bryant billboard ai chatbot">
         <div class="card-top">
           <div><div class="card-name">ChatTJB</div><div class="card-tag">San Francisco billboard art project (Tucker Bryant)</div></div>
           <span class="rank">#5</span>
@@ -484,7 +517,7 @@
         <div class="na-line">On-chain diligence — n/a, no coin yet</div>
       </div>
 
-      <div class="card">
+      <div class="card" data-search="capybara of indifference capy">
         <div class="card-top">
           <div><div class="card-name">Capybara of Indifference</div><div class="card-tag">audio-meme format, capybara + dramatic score</div></div>
           <span class="rank">#6</span>
@@ -511,7 +544,7 @@
 
     <div class="grid">
 
-      <div class="card">
+      <div class="card" data-search="justice for heehaw heehaw">
         <div class="card-top">
           <div><div class="card-name">Justice for HeeHaw</div><div class="card-tag">$HeeHaw — Solana, launched Aug 30</div></div>
           <span class="rank">~$3.7–4M mc</span>
@@ -532,7 +565,7 @@
         </div>
       </div>
 
-      <div class="card">
+      <div class="card" data-search="jimothy the raccoon jimothy">
         <div class="card-top">
           <div><div class="card-name">Jimothy the Raccoon</div><div class="card-tag">$JIMOTHY — Solana</div></div>
           <span class="rank">~$14.3M mc</span>
@@ -553,7 +586,7 @@
         </div>
       </div>
 
-      <div class="card is-dead">
+      <div class="card is-dead" data-search="loria new truth terminal">
         <div class="card-top">
           <div><div class="card-name">LORIA</div><div class="card-tag">"New Truth Terminal" tribute — Solana</div></div>
           <span class="rank">~$9.3K mc</span>
@@ -574,7 +607,7 @@
         </div>
       </div>
 
-      <div class="card is-dead">
+      <div class="card is-dead" data-search="kiyomasa the gorilla gorilla">
         <div class="card-top">
           <div><div class="card-name">Kiyomasa the Gorilla</div><div class="card-tag">Higashiyama Zoo, Nagoya — twice-abandoned CTO</div></div>
           <span class="rank">~$27K mc</span>
@@ -595,7 +628,7 @@
         </div>
       </div>
 
-      <div class="card is-dead">
+      <div class="card is-dead" data-search="aisora sora scam altman">
         <div class="card-top">
           <div><div class="card-name">AISora <span style="color:var(--bad); font-weight:400;">(correction)</span></div><div class="card-tag">Sora 2 "GPU theft" Altman deepfake wave</div></div>
           <span class="rank">-99.85%</span>
@@ -619,6 +652,17 @@
     </div>
   </section>
 
+  <section class="block" id="requested">
+    <div class="block-head">
+      <h2>Requested coins</h2>
+      <span class="count">submitted via the lookup bar above</span>
+    </div>
+    <p class="block-note">Anyone can request a $TICKER using the lookup bar — it opens a GitHub issue on this repo. Each 8-hour refresh checks for new requests, runs the same 7-variable diligence pass on them, and adds the result here.</p>
+    <div class="grid">
+      <div class="card empty-card">No requests yet — be the first via the lookup bar above.</div>
+    </div>
+  </section>
+
   <section class="block">
     <div class="block-head">
       <h2>Reference plays</h2>
@@ -632,7 +676,7 @@
           <tr><th>Name</th><th>Origin</th><th>Time to launch</th><th>Peak</th><th>Now</th><th>Outcome</th></tr>
         </thead>
         <tbody>
-          <tr>
+          <tr data-search="cash cat cashcat robinhood chain">
             <td class="name">Cash Cat<span>CASHCAT · Robinhood Chain</span></td>
             <td>Robinhood's old internal codename resurfaced at mainnet launch</td>
             <td class="num">~1 week after</td>
@@ -640,7 +684,7 @@
             <td class="num">high risk, anon team</td>
             <td><span class="outcome peaked">Peaked</span></td>
           </tr>
-          <tr>
+          <tr data-search="the black bull ansem">
             <td class="name">The Black Bull<span>$ANSEM · Solana</span></td>
             <td>Tribute coin airdropped straight to KOL Ansem's wallet</td>
             <td class="num">same day</td>
@@ -648,7 +692,7 @@
             <td class="num">~$120M</td>
             <td><span class="outcome live">Still live</span></td>
           </tr>
-          <tr>
+          <tr data-search="goatseus maximus goat truth terminal">
             <td class="name">Goatseus Maximus<span>$GOAT · Solana</span></td>
             <td>AI agent Truth Terminal fixated on the "Goatse" meme</td>
             <td class="num">~1 hour after</td>
@@ -656,7 +700,7 @@
             <td class="num">well off peak</td>
             <td><span class="outcome peaked">Peaked</span></td>
           </tr>
-          <tr>
+          <tr data-search="fartcoin">
             <td class="name">Fartcoin<span>Solana</span></td>
             <td>Same Truth Terminal / "Infinite Backrooms" AI lineage as $GOAT</td>
             <td class="num">~1 week after</td>
@@ -664,7 +708,7 @@
             <td class="num">well off peak</td>
             <td><span class="outcome peaked">Peaked</span></td>
           </tr>
-          <tr>
+          <tr data-search="peanut the squirrel pnut">
             <td class="name">Peanut the Squirrel<span>$PNUT · Solana</span></td>
             <td>Pet squirrel euthanized by NY wildlife officials; Musk amplified</td>
             <td class="num">~1 week after</td>
@@ -672,7 +716,7 @@
             <td class="num">well off peak</td>
             <td><span class="outcome peaked">Peaked</span></td>
           </tr>
-          <tr>
+          <tr data-search="moo deng moodeng">
             <td class="name">Moo Deng<span>$MOODENG · Solana</span></td>
             <td>Viral pygmy hippo at a Thai zoo</td>
             <td class="num">concurrent</td>
@@ -680,7 +724,7 @@
             <td class="num">well off peak</td>
             <td><span class="outcome peaked">Peaked</span></td>
           </tr>
-          <tr>
+          <tr data-search="punch macaque">
             <td class="name">Punch<span>$PUNCH · Solana</span></td>
             <td>Baby macaque's bond with an IKEA plush; Tate brothers amplified</td>
             <td class="num">days after</td>
@@ -688,7 +732,7 @@
             <td class="num"><span style="color:var(--bad)">-70%</span> for early traders</td>
             <td><span class="outcome peaked">Peaked</span></td>
           </tr>
-          <tr>
+          <tr data-search="nihilist penguin">
             <td class="name">Nihilist Penguin<span>$PENGUIN · Solana</span></td>
             <td>2007 Herzog documentary clip resurfaced via a viral AI-generated post</td>
             <td class="num">days after</td>
@@ -748,6 +792,49 @@
   <p><b>Method:</b> every 8 hours this fans out parallel research agents — one scanning viral animal content, one scanning viral AI content, one scanning crypto-KOL/launch-tracker chatter from the last 24–72h — then a diligence pass tries to pull bundling %, dev-wallet history, liquidity/TVL, holder count, and chart structure for anything that already has a coin, plus a market-conditions read. It searches the open web (news aggregators, crypto trackers, wiki/fandom pages); it does not have a live X/Twitter firehose or authenticated access to on-chain tools like RugCheck/DexScreener/Solscan (those block direct fetches from here), so figures marked "unverified" are genuine gaps, not rounding — verify anything you'd act on directly against the contract before trading.</p>
   <p class="disclaimer">Not financial advice. Memecoins are extremely high-risk, illiquid, and often engineered to transfer money from latecomers to early wallets and anonymous deployers — the large majority go to zero or get rugged, as several entries on this exact page already have. Names surfaced here are reported patterns and public web signals, not endorsements, and every figure can be stale by the time you read this. Do your own diligence on any contract before risking money.</p>
 </footer>
+
+<script>
+(function () {
+  var input = document.getElementById('lookup-input');
+  var status = document.getElementById('lookup-status');
+  var requestLink = document.getElementById('lookup-request');
+  if (!input || !status || !requestLink) return;
+
+  var defaultStatus = status.textContent;
+  var searchables = Array.prototype.slice.call(document.querySelectorAll('[data-search]'));
+
+  function normalize(s) {
+    return s.toLowerCase().replace(/^\$+/, '').trim();
+  }
+
+  function applyFilter() {
+    var raw = input.value;
+    var q = normalize(raw);
+    var visible = 0;
+
+    searchables.forEach(function (el) {
+      var hay = el.getAttribute('data-search') || '';
+      var match = q === '' || hay.indexOf(q) !== -1;
+      el.hidden = !match;
+      if (match) visible++;
+    });
+
+    var ticker = raw.trim();
+    var title = 'Analyze ' + (ticker ? (ticker.charAt(0) === '$' ? ticker : '$' + ticker) : '$');
+    requestLink.href = 'https://github.com/niqolebuilds/pregame/issues/new?labels=analysis-request&title=' + encodeURIComponent(title);
+
+    if (q === '') {
+      status.textContent = defaultStatus;
+    } else if (visible === 0) {
+      status.textContent = 'No match on the tape for "' + ticker + '". Hit "Request analysis" → it opens a pre-filled GitHub issue and gets a full diligence pass on the next refresh.';
+    } else {
+      status.textContent = visible + ' match' + (visible === 1 ? '' : 'es') + ' on the tape for "' + ticker + '".';
+    }
+  }
+
+  input.addEventListener('input', applyFilter);
+})();
+</script>
 
 </body>
 </html>
